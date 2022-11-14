@@ -1,4 +1,5 @@
 package org.example;
+
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -21,6 +22,7 @@ public class DrawGraphs extends JFrame {
     private final String title;
     private double[] arrayOfX;
     private double[] arrayOfY;
+    private XYSeriesCollection dataset;
 
 
     public double[] getArrayOfX() {
@@ -31,11 +33,9 @@ public class DrawGraphs extends JFrame {
         return arrayOfY;
     }
 
-    public DrawGraphs(String title, double[] arrayOfX, double[] arrayOfY) {
+    public DrawGraphs(String title) {
         this.title = title;
-        this.arrayOfX = arrayOfX;
-        this.arrayOfY = arrayOfY;
-        initUI();
+        dataset = new XYSeriesCollection();
     }
 
     @Override
@@ -44,9 +44,8 @@ public class DrawGraphs extends JFrame {
     }
 
 
-    private void initUI() {
+    public void initUI() {
 
-        XYDataset dataset = createDataset();
         JFreeChart chart = createChart(dataset);
 
         ChartPanel chartPanel = new ChartPanel(chart);
@@ -60,15 +59,13 @@ public class DrawGraphs extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
-    private XYDataset createDataset() {
+    public XYDataset updateDataset(String key, double[] arrayOfX, double[] arrayOfY) {
 
-        var series = new XYSeries("");
+        XYSeries series = new XYSeries(key);
         int i = 0;
-        for(;i < getArrayOfX().length;i++){
-            series.add(getArrayOfX()[i],getArrayOfY()[i]);
+        for(;i < arrayOfX.length;i++){
+            series.add(arrayOfX[i],arrayOfY[i]);
         }
-
-        var dataset = new XYSeriesCollection();
         dataset.addSeries(series);
 
         return dataset;
@@ -78,8 +75,8 @@ public class DrawGraphs extends JFrame {
 
         JFreeChart chart = ChartFactory.createXYLineChart(
                 getTitle(),
-                "Accuracy",
-                "Number of hits",
+                "-lg(E)",
+                "N",
                 dataset,
                 PlotOrientation.VERTICAL,
                 true,

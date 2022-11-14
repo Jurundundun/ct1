@@ -1,223 +1,149 @@
 package org.example;
 
 public class Functions {
-    private static double funcOne(double x){
-        double rez = 0;
-        if (x <= 1) {
-            rez = x * x;
-        }
-        else {
-            rez = 2 * x - 1;
-        }
-        return rez;
 
-    }
-    private static double funcTwo(double x) {
-        return Math.pow(x,6);
-    }
 
 
 // метод перебора
 
-    public static double[] enumeration(double a0, double b0, double E) {
-        double min = funcOne(a0);
-        double n = Math.ceil((b0 - a0) / E);
-        double N = n + 1;
-        double[] result ;
-        double x,c = 0;
-        int i = 0;
-        for(;i < n;i++) {
-            x = a0 + i * (b0 - a0) / n;
-            c = funcOne(x);
-            if (c < min) {
-                min = c;
-            }
-        }
-        result = new double[] {min,N};
-        return result;
+    public static double fun(double x) {
+        return 5*Math.sin(2*x)+x*x;
     }
 
-//Метод поразрядного поиска
-
-
-    public static double[] bitByBitSearch(double a0, double b0, double E) {
-        double L = 0.1;
-        double d = L * (b0 - a0);
-        double n = Math.ceil((Math.log(d / E) / (Math.log(1 / L)) + 1));
-        double x0,x1;
-        double[] result;
-        int k;
-        int border = 1;
-        int i = 0;
-        for(;i<Math.ceil(n/2);i++) {
-            if (border == 1) {
-                x0 = a0;
-                x1 = funcOne(a0 + d);
-                k = 1;
-                while (funcOne(x0) > funcOne(x1)) {
-                    k += 1;
-                    x0 = x1;
-                    x1 = funcOne(a0 + k * d);
-                }
-
-                a0 = x0;
-                b0 = x1;
-                //L = d * L
-                d = d * L;
-                border = 0;
+    //метод перебора
+    public static double[] enumeration(double a, double b, double E) {
+        double n = (b - a) / E;
+        double ymin = fun(a);
+        double xi = a, xmin = a;
+        for (int i = 0; i < n + 2; i++) {
+            if (ymin > fun(xi)) {
+                ymin = fun(xi);
+                xmin = xi;
             }
-            else {
-                x0 = b0;
-                x1 = funcOne(b0 - d);
-
-                k = 1;
-                while (funcOne(x0) > funcOne(x1)) {
-                    k += 1;
-                    x0 = x1;
-                    x1 = funcOne(a0 - k * d);
-                }
-
-                a0 = x1;
-                b0 = x0;
-                //L = d * L
-                d = L * d;
-                border = 1;
-            }
+            xi = a + i * ((b - a) / n);
         }
-        result = new double[] {a0,n};
-        return result;
+        //System.out.printf("Перебор: X* = %f, Ymin = %f, n = %f\n", xmin, ymin,n);
+        return new double[]{xmin,ymin,n};
+
     }
 
+    //Золотое сечение
+    public static double[] goldenRatio(double a, double b, double E) {
+        double Q = (Math.sqrt(5) - 1) / 2, q = 1-Q, x1, x2;
+        x1 = a + (b - a) * q;
+        x2 = b - (x1 - a);
+        int n = (int) (Math.log((2 * E) /(b - a) ) / (Math.log(Q)));
 
-    public static double[] dichotomyOne(double a0, double b0, double E) {
-        double q = 1.5 * E;
-        double n = Math.ceil(Math.log((b0 - a0 - q) / (2 * E - q))/Math.log(2));
-        double N = 2 * n;
-        double[] result;
-        double x1,x2,min;
-        int i = 0;
-        for(;i < n;i++) {
-            x1 = (a0 + b0 - q) / 2;
-            x2 = (a0 + b0 + q) / 2;
-            if (funcOne(x1) <= funcOne(x2)) {
-                b0 = x2;
-            }
-            else {
-                a0 = x1;
-            }
-        }
+        for (int i = 0; i < n; i++) {
 
-        min = (a0 + b0) / 2;
-        result = new double[] {a0,N};
-        return result;
-    }
-
-
-    public static double[] dichotomyTwo(double a0, double b0, double E) {
-        double n = Math.ceil(Math.log((b0 - a0) / (2 * E))/Math.log(2));
-        double N = 2 * n + 1;
-        //while (b0 - a0) > E
-        double x2 = a0 + (b0 - a0) / 2;
-        double x1,x3;
-        double[] result;
-        int i = 0;
-        for (;i < n;i++) {
-            x1 = a0 + (b0 - a0) / 4;
-            x3 = a0 + 3 * (b0 - a0) / 4;
-            if (funcOne(x1) <= funcOne(x2)) {
-                b0 = x2;
+            if (fun(x1) <= fun(x2)) {
+                b = x2;
                 x2 = x1;
-            }
-            else if (funcOne(x2) <= funcOne(x3)) {
-                a0 = x1;
-                b0 = x3;
-            }
-            else if (funcOne(x2) > funcOne(x3)) {
-                a0 = x2;
-                x2 = x3;
-            }
-        }
-        result = new double[] {x2,N};
-        return result;
-    }
-
-
-    public static double[] goldenRatio(double a0, double b0, double E) {
-        double Fi = (Math.pow(5,0.5) - 1) /2;
-        double F = 1 / Fi;
-        double n = Math.ceil(Math.log((b0 - a0) / (2 * E)) / Math.log(F));
-        double N = n + 1;
-        double x1 = a0 + (b0 - a0) * (1 - Fi);
-        double x2 = a0 + (b0 - a0) * Fi;
-        double[] result;
-        int i = 0;
-        for (;i < n;i++) {
-            if (funcOne(x1) <= funcOne(x2)) {
-                b0 = x2;
-                x2 = x1;
-                x1 = a0 + b0 - x1;
-            }
-            else if (funcOne(x1) > funcOne(x2)) {
-
-                a0 = x1;
+                x1 = a + b - x1;
+            } else {
+                a = x1;
                 x1 = x2;
-                x2 = a0 + b0 - x2;
+                x2 = a + b - x2;
             }
         }
-        result = new double[] {(a0+b0) / 2, N};
-        return result;
+
+        //System.out.printf("Золотое сечение: X* = %f, Ymin = %f, n = %d\n", (a + b) / 2, fun((a + b) / 2),n);
+        return new double[]{(a + b) / 2,fun((a + b) / 2), n};
+
     }
 
+    //метод дихотомии(2)
+    public static double[] dichotomyTwo(double a, double b, double E) {
+        double x0,x1,x2;
+        int n=0;
+        while (Math.abs((b-a)/2)>E) {
+            x0 = a + ((b - a) / 4);
+            x1 = a + 2 * ((b - a) / 4);
+            x2 = a + 3 * ((b - a) / 4);
 
-    public static double[] fibonacci(double a0, double b0, double E) {
-        double F = (Math.pow(5,0.5) + 1) / 2;
-        double n = Math.ceil(Math.log(((b0 - a0) * Math.pow (5,0.5)) / E) / Math.log(F)) - 3;
-        double f = (Math.pow(5,0.5) - 1) /2;
-        double N = n + 1;
-        double x1 = a0 + (1 - f) * (b0 - a0);
-        double x2 = a0 + (f) * (b0 - a0);
-        double[] result;
-        int i = 0;
+            if (fun(x0) <= fun(x1)) {
+                b = x1;
+            } else if (fun(x1) <= fun(x2)) {
+                a = x0;
+                b = x2;
+            } else {
+                a = x1;
+            }
+            n++;
+        }
+        //System.out.printf("Дихтомия2: X* = %f, Ymin = %f, n = %d\n", ((a+b)/2), fun((a+b)/2),n);
+        return new double[]{(a + b) / 2,fun((a+b)/2), n};
 
-        for (;i < n;i++) {
-            if (funcOne(x1) <= funcOne(x2)) {
-                b0 = x2;
-                x2 = x1;
-                x1 = a0 + b0 - x2;
+    }
+
+    //метод дихотомии(1)
+    public static double[] dichotomyOne(double a, double b, double E) {
+        double x1,x2;
+        int n = 0;
+        while (Math.abs((b-a)/2)>E){
+            x1 = (a+b- E)/2;
+            x2 = (a+b+ E)/2;
+            if (fun(x1)<=fun(x2)) {
+                b = x2;
+            }
+            else{
+                a = x1;
+            }
+            n++;
+        }
+        //System.out.printf("Дихтомия1: X* = %f, Ymin = %f, n = %d\n", (a+b)/2, fun((a+b)/2),n);
+        return new double[]{(a+b)/2, fun((a+b)/2), n};
+
+    }
+
+    public static double[] bitByBitSearch(double a, double b, double E) {
+        double delta = (b-a)/4;
+        double x0 = a;
+        double x1;
+        int n = 0;
+        while (Math.abs(delta)>E){
+            x1 = x0 + delta;
+            if (fun(x0)>fun(x1)){
+                x0 = x1;
+                if (a<x0 && x0<b){
+                    x1 = x0 +delta;
+                }
             }
             else {
-                a0 = x1;
-                x1 = x2;
-                x2 = a0 + b0 - x1;
+                x0 = x1;
+                delta = (-delta)/4;
             }
+            n++;
         }
-        result = new double[] {(a0 + b0) / 2, N};
-        return result;
+        //System.out.printf("Поразрядный поиск: X* = %f, Ymin = %f, n = %d\n", x0, fun(x0),n);
+
+        return new double[]{x0,fun(x0), n};
+
     }
 
 
-    public static double[] parabolaMethod(double a0, double b0, double eps) {
+    //метод парабол
+    public static double[] parabolaMethod(double a, double b, double E) {
 
-        double x1 = a0;
-        double x2 = (a0 + b0) / 2;
-        double x3 = b0;
+        double x1 = a;
+        double x2 = (a + b) / 2;
+        double x3 = b;
         double x;
-        double N = 0;
-        double[] result;
+        int N = 0;
 
-        while (funcOne(x1) <= funcOne(x2) && funcOne(x2) >= funcOne(x3)) {
-            x2 = (a0 + x2) / 2;
+        while (fun(x1) <= fun(x2) && fun(x2) >= fun(x3)) {
+            x2 = (a + x2) / 2;
             N += 3;
         }
 
         x = (x1 + x2) / 2 - (x3 - x2) / 2 * (
-                (funcOne(x3) - funcOne(x1)) * (x2 - x1) / (x3 - x1) / Math.pow ((funcOne(x2) - funcOne(x1)),-1));
+                (fun(x3) - fun(x1)) * (x2 - x1) / (x3 - x1) / Math.pow ((fun(x2) - fun(x1)),-1));
 
-        while (Math.abs(x3 - x1) > eps) {
+        while (Math.abs(x3 - x1) > E) {
             x = (x1 + x2) / 2 - (x3 - x2) / 2 * (
-                    Math.pow(((funcOne(x3) - funcOne(x1)) * (x2 - x1) / (x3 - x1) / (funcOne(x2) - funcOne(x1)) - 1) ,-1));
+                    Math.pow(((fun(x3) - fun(x1)) * (x2 - x1) / (x3 - x1) / (fun(x2) - fun(x1)) - 1) ,-1));
             N += 3;
-            if (funcOne(x) < funcOne(x2)) {
+            if (fun(x) < fun(x2)) {
                 if (x > x2) {
                     x1 = x2;
                     x2 = x;
@@ -236,7 +162,34 @@ public class Functions {
                 }
             }
         }
-        result = new double[] {x,N};
-        return result;
+        //System.out.printf("Парабол: X* = %f, Ymin = %f, n = %d\n", x, fun(x),N);
+        return new double[] {x,fun(x),N};
+    }
+
+
+
+    //метод Фибоначчи
+    public static double[] fibonacci(double a, double b, double E) {
+        double fi = ((Math.pow(5,(0.5))-1)/2);
+        double F = ((Math.pow(5,(0.5))+1)/2);
+        double n1 = ((Math.log((b-a)*Math.pow(5,(0.5))/E)/Math.log(F))-3);
+        int n = (int) Math.ceil(n1);
+        double x1 = a+(1-fi)*(b-a);
+        double x2 = a+fi*(b-a);
+        for (int i = 0; i < n; i++){
+            if (fun(x1)<=fun(x2)){
+                b=x2;
+                x2=x1;
+                x1=a+b-x1;
+            }
+            else {
+                a=x1;
+                x1=x2;
+                x2=a+b-x1;
+            }
+        }
+        //System.out.printf("Фибоначчи: X* = %f, Ymin = %f, n = %d\n", (a+b)/2, fun((a+b)/2),n);
+
+        return new double[]{(a+b)/2,fun((a+b)/2), n};
     }
 }
